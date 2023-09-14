@@ -2,7 +2,7 @@ import * as React from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Todo from "./interfaces/interface";
-import LocalStorage, { UpdateStorage } from "./LocalStorage";
+import LocalStorage, { UpdateStorage } from "./storage/LocalStorage";
 
 
 
@@ -14,7 +14,7 @@ const Input: React.FC = () => {
         position: "top-left"
     });
 
-
+    const inputRef = React.useRef<HTMLInputElement>(null)
 
     const [todo, setTodo] = React.useState<{ name: string, id: number }>({
         name: '',
@@ -22,7 +22,6 @@ const Input: React.FC = () => {
     })
 
     const [todos, setTodos] = React.useState<Todo[]>(LocalStorage())
-
 
     function submit(e: React.FormEvent) {
         e.preventDefault()
@@ -48,28 +47,32 @@ const Input: React.FC = () => {
     function edit(id: number, name: string) {
         setTodo({ name: name, id: id })
         setIsEditing(true)
+        inputRef.current?.focus()
     }
 
     function deleteF(id: number) {
         setTodos(todos.filter(t => t.id !== id))
         UpdateStorage(todos)
-        notify('deleted')
+        const deleted = () => toast.error(`Todo is  Deleted!`, {
+            position: "top-left"
+        });
+        deleted()
     }
 
     return (
-        <div className="container p-5 bg-slate-600 mx-auto rounded-xl mt-5">
+        <div className="container p-5 bg-slate-600 md:w-[60%] mx-auto rounded-xl mt-5">
             <form onSubmit={submit} className='w-[50%] mx-auto bg-white relative flex items-center   p-1 border-4'>
-                <input type="text" className="w-full border pr-10 p-2 outline-blue-600 hover:border-gray-600 transition duration-300 rounded-lg" onChange={(e) => setTodo({ ...todo, name: e.target.value })} value={todo.name} required />
+                <input ref={inputRef} type="text" className="w-full border pr-10 p-2 outline-blue-600 hover:border-gray-600 transition duration-300 rounded-lg" onChange={(e) => setTodo({ ...todo, name: e.target.value })} value={todo.name} required />
                 <span className="absolute left-[90%]">{isEditing ? '✍' : '✔'}</span>
                 <button className="hidden"></button>
             </form>
 
             <div className="w-[50%] mx-auto mt-5">
-                {todos.map((p, i) => {
+                {todos.map((p: Todo, i) => {
                     return <div className="grid grid-cols-[1fr_auto_auto] bg-white my-2 p-1 rounded-lg" key={i}>
-                        <h2 className="text-2xl font-bold">id:{i + 1}.{p.name}</h2>
-                        <button className="mx-3" onClick={() => deleteF(p.id)}>❌</button>
+                        <h2 className="text-2xl font-bold">{i + 1}) {p.name}</h2>
                         <button onClick={() => edit(p.id, p.name)}>✍</button>
+                        <button className="mx-3" onClick={() => deleteF(p.id)}>❌</button>
                     </div>
 
                 })}
