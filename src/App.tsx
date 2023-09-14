@@ -1,16 +1,12 @@
-import { useState } from "react"
-import Input from "./Input"
-import Reducer from "./Reducer"
+
+import Input from "./components/Form"
 
 
 const App = () => {
 
-  const[count,setCount] = useState<string>('0')
-
   return (
     <div>
-      <Input name='Name' surname="Surname" age={19} ></Input>
-      {/* <Reducer /> */}
+      <Input />
     </div>
   )
 }
